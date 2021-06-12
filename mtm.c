@@ -760,7 +760,7 @@ getterm(void)
 }
 
 static NODE *
-newview(NODE *p, int y, int x, int h, int w) /* Open a new view. */
+newview(NODE *p, int y, int x, int h, int w, char** prog) /* Open a new view. */
 {
     struct winsize ws = {.ws_row = h, .ws_col = w};
     NODE *n = newnode(VIEW, p, y, x, h, w);
@@ -794,7 +794,10 @@ newview(NODE *p, int y, int x, int h, int w) /* Open a new view. */
         setenv("MTM", buf, 1);
         setenv("TERM", getterm(), 1);
         signal(SIGCHLD, SIG_DFL);
-        execl(getshell(), getshell(), NULL);
+	if (prog)
+	    execvp(prog[0], prog);
+	else
+            execl(getshell(), getshell(), NULL);
         return NULL;
     }
 
@@ -978,7 +981,7 @@ split(NODE *n, Node t) /* Split a node. */
     int nh = t == VERTICAL? (n->h - 1) / 2 : n->h;
     int nw = t == HORIZONTAL? (n->w) / 2 : n->w;
     NODE *p = n->p;
-    NODE *v = newview(NULL, 0, 0, MAX(0, nh), MAX(0, nw));
+    NODE *v = newview(NULL, 0, 0, MAX(0, nh), MAX(0, nw), NULL);
     if (!v)
         return;
 
@@ -1145,6 +1148,12 @@ main(int argc, char **argv)
         default:  quit(EXIT_FAILURE, USAGE);        break;
     }
 
+    /* Find the command if provided. */
+    char** prog = NULL;
+    if (optind < argc){
+        prog = &argv[optind];
+    }
+
     if (!initscr())
         quit(EXIT_FAILURE, "could not initialize terminal");
     raw();
@@ -1155,7 +1164,7 @@ main(int argc, char **argv)
     use_default_colors();
     start_pairs();
 
-    root = newview(NULL, 0, 0, LINES, COLS);
+    root = newview(NULL, 0, 0, LINES, COLS, prog);
     if (!root)
         quit(EXIT_FAILURE, "could not open root window");
     focus(root);
