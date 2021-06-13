@@ -1,3 +1,8 @@
+This is a forked from github.com/deadpixi/mtm, to allow a command to be
+specified when starting mtm without overriding the SHELL environment variables.
+Next, I'd want to strip this down to the bare minimum of what I need this for,
+which is a small program that saves the terminal state when used with abduco.
+
 Introduction
 ============
 
