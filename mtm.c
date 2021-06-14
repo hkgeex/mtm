@@ -1150,9 +1150,7 @@ main(int argc, char **argv)
 
     /* Find the command if provided. */
     char** prog = NULL;
-    if (optind < argc){
-        prog = &argv[optind];
-    }
+    if (optind < argc) prog = &argv[optind];
 
     if (!initscr())
         quit(EXIT_FAILURE, "could not initialize terminal");
